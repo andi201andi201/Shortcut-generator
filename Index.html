@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iOS Shortcut Generator – Einfach für alle</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+    header {
+      background: #007aff;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .step {
+      display: none;
+      padding: 1rem;
+    }
+    .step.active {
+      display: block;
+    }
+    .navigation {
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .navigation button {
+      padding: 1rem;
+      margin: 0.5rem;
+      font-size: 1rem;
+    }
+    .breadcrumbs {
+      text-align: center;
+      padding: 0.5rem;
+      font-size: 0.9rem;
+      background: #eee;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .options button {
+      font-size: 1.2rem;
+      padding: 1rem;
+      background: white;
+      border: 2px solid #007aff;
+      border-radius: 10px;
+      text-align: left;
+    }
+    .options button span {
+      font-size: 1.5rem;
+      margin-right: 1rem;
+    }
+    input {
+      font-size: 1.2rem;
+      padding: 0.75rem;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    @media (min-width: 600px) {
+      .options {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .options button {
+        min-width: 240px;
+      }
+    }
+    pre {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>iOS Shortcut Generator</h1>
+  <p>Erstelle kinderleicht eigene Automationen für dein iPhone – ohne Technik-Wissen!</p>
+</header>
+
+<div class="breadcrumbs" id="breadcrumbs">Schritt 1 von 6</div>
+
+<div id="step0" class="step active">
+  <h2>1. Wann soll dein Handy etwas für dich tun?</h2>
+  <p>Wähle einen Moment, in dem dein Handy automatisch eine Aufgabe erledigen soll.</p>
+  <div class="options" id="trigger-options">
+    <button onclick="selectTrigger('Zeit')"><span>🕒</span> Zu einer bestimmten Uhrzeit</button>
+    <button onclick="selectTrigger('Ort')"><span>📍</span> Wenn ich ankomme oder weggehe</button>
+    <button onclick="selectTrigger('Fokus-Modus')"><span>🔕</span> Wenn ich nicht gestört werden will</button>
+    <button onclick="selectTrigger('Akku')"><span>🔋</span> Wenn der Akku fast leer ist</button>
+  </div>
+</div>
+
+<div id="step1" class="step">
+  <h2>2. Sag genauer, wann es passieren soll</h2>
+  <p>Zum Beispiel: 20:00 Uhr, Zuhause, Fokus „Schlafen“, Akku unter 20%</p>
+  <input type="text" id="trigger-detail" placeholder="Schreib hier deine Zeit oder deinen Ort rein">
+</div>
+
+<div id="step2" class="step">
+  <h2>3. Was soll dein Handy dann machen?</h2>
+  <p>Wähle eine Aktion, die automatisch passieren soll.</p>
+  <div class="options" id="action-options">
+    <button onclick="selectAction('Nicht stören aktivieren')"><span>🔕</span> Nicht stören aktivieren</button>
+    <button onclick="selectAction('WLAN deaktivieren')"><span>📶</span> WLAN ausschalten</button>
+    <button onclick="selectAction('Nachricht senden')"><span>✉️</span> Jemandem eine Nachricht schicken</button>
+    <button onclick="selectAction('App öffnen')"><span>📱</span> Eine App starten</button>
+  </div>
+</div>
+
+<div id="step3" class="step">
+  <h2>4. Details zur Aktion</h2>
+  <p>Zum Beispiel: Wem soll die Nachricht gesendet werden? Welche App?</p>
+  <input type="text" id="action-parameter" placeholder="z. B. Empfänger oder App-Name">
+</div>
+
+<div id="step4" class="step">
+  <h2>5. Gib deinem Kurzbefehl einen Namen</h2>
+  <p>Wie soll der Kurzbefehl auf deinem Handy heissen?</p>
+  <input type="text" id="shortcut-name" placeholder="z. B. Abend-Erinnerung, Schlafmodus">
+</div>
+
+<div id="step5" class="step">
+  <h2>6. Fertig! Hier ist dein Kurzbefehl:</h2>
+  <p>Du kannst ihn abschreiben oder jemandem zeigen, der dir hilft, ihn in der Kurzbefehle-App zu erstellen.</p>
+  <pre id="shortcut-preview">{}</pre>
+</div>
+
+<div class="navigation">
+  <button onclick="prevStep()">⬅️ Zurück</button>
+  <button onclick="nextStep()">➡️ Weiter</button>
+</div>
+
+<script>
+  let currentStep = 0;
+  const data = {};
+
+  function showStep(index) {
+    document.querySelectorAll('.step').forEach((el, i) => {
+      el.classList.toggle('active', i === index);
+    });
+    document.getElementById('breadcrumbs').textContent = "Schritt " + (index + 1) + " von 6";
+    currentStep = index;
+  }
+
+  function nextStep() {
+    if (currentStep === 1) data.detail = document.getElementById('trigger-detail').value;
+    if (currentStep === 3) data.parameter = document.getElementById('action-parameter').value;
+    if (currentStep === 4) data.name = document.getElementById('shortcut-name').value;
+    if (currentStep === 5) {
+      document.getElementById('shortcut-preview').textContent = JSON.stringify(data, null, 2);
+    }
+    if (currentStep < 5) showStep(currentStep + 1);
+  }
+
+  function prevStep() {
+    if (currentStep > 0) showStep(currentStep - 1);
+  }
+
+  function selectTrigger(trigger) {
+    data.trigger = trigger;
+    nextStep();
+  }
+
+  function selectAction(action) {
+    data.action = action;
+    nextStep();
+  }
+</script>
+
+</body>
+</html>
