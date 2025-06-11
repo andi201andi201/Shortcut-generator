@@ -5,22 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Treppen-Challenge</title>
 
-  <!-- Passwort- / Stock-Param-Check mit 5-Min-Timeout für normale Nutzer -->
-<script>
+  <script>
   (function(){
-    // —— Nur auf geschützten Seiten aktivieren, nicht auf index.html —— 
+    // —— Nur auf index.html überspringen ——
     const page = window.location.pathname.split('/').pop();
-    if (page === 'index.html' || page === '') {
-      return;
-    }
+    if (page === 'index.html' || page === '') return;
 
     const allowed = ['1','2','3','4'];
     const sp = new URLSearchParams(location.search).get('stock');
     const isAdmin = localStorage.getItem('admin') === 'true';
-    const SESSION_DURATION = 5 * 60 * 1000; // 5 Minuten
+    const SESSION_DURATION = 5 * 60 * 1000;
 
     function logout() {
-      alert('🕒 Deine Sitzung ist abgelaufen. Bitte melde dich neu an.');
+      alert('🕒 Sitzung abgelaufen, bitte neu anmelden.');
       window.location.href = 'index.html';
     }
 
@@ -40,15 +37,37 @@
         }
         sessionStorage.setItem('loginTime', Date.now());
       }
-      setTimeout(() => {
+      setTimeout(()=>{
         sessionStorage.removeItem('loginTime');
         logout();
       }, SESSION_DURATION);
     }
-    // Admins steigen hier ohne Timeout durch
-  })();
+  })();  <!-- WICHTIG: hier schließen! -->
 </script>
 
+<!-- 2) Stockwerk fixieren & Redirects -->
+<script>
+  function lockStock() {
+    const sp = new URLSearchParams(location.search).get('stock');
+    if (['1','2','3','4'].includes(sp)) {
+      const el = document.getElementById('stockwerk');
+      el.value = sp;
+      el.disabled = true;
+    }
+  }
+  function setupRedirects() {
+    const stock = new URLSearchParams(location.search).get('stock') || '';
+    document.getElementById('quizLink').href    = stock ? `quiz.html?stock=${stock}`    : 'quiz.html';
+    document.getElementById('selfieLink').href  = stock ? `selfie.html?stock=${stock}`  : 'selfie.html';
+    document.getElementById('backLink').href    = stock ? `index.html?stock=${stock}`  : 'index.html';
+  }
+  window.addEventListener('DOMContentLoaded', () => {
+    lockStock();
+    setupRedirects();
+    // … der Rest Deiner Logik …
+  });
+  window.addEventListener('pageshow', lockStock);
+</script>
   <style>
 /* -------- Selfie-Station Header -------- */
 .main-header {
