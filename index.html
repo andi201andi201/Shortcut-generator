@@ -368,6 +368,23 @@ flex-wrap: wrap;
       color: #333;
       border-bottom-color: #333;
     }
+.selfie-wrapper {
+  display: inline-flex;
+  flex-direction: column;   /* Stapelt Button über Notice */
+  align-items: center;      /* zentriert beide in sich – passt zum Button */
+  margin-left: 1em;         /* optional: Abstand zum Logo oder Nachbarelement */
+}
+
+/* Die Notice rutscht jetzt direkt unter den Button */
+.selfie-notice {
+  margin-top: 0.3em;
+  font-size: 0.9rem;
+  color: #555;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s;
+}
   </style>
 
   <!--
